@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celly Boutique — Catálogo Digital</title>
+
+<!-- ALARME DE ERROS: Captura falhas invisíveis no celular -->
+<script>
+  window.onerror = function(msg, url, lineNo, columnNo, error) {
+    alert("❌ ERRO NO CÓDIGO:\n" + msg + "\n\nLinha: " + lineNo);
+    return false;
+  };
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Nova paleta Celly Boutique (Elegante Escuro com Rosa e Roxo) */
+    --bg: #1B181E;         /* Fundo principal chique */
+    --bg-raised: #28242C;  /* Fundo de cartões */
+    --paper: #FDFBFD;      /* Texto principal */
+    --mango: #D84C98;      /* Rosa Celly (Botões) */
+    --papaya: #9B51E0;     /* Roxo Celly (Carrinho e Destaques) */
+    --sage: #B4A9BE;       /* Texto secundário */
+    --line: rgba(253,251,253,0.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--paper);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 120px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--sage);
+  }
+
+  /* Banner Slider no Topo */
+  .hero-slider{
+    position: relative;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: #000;
+  }
+  .slide{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
+  .slide.active{
+    opacity: 1;
+  }
+  .slider-overlay{
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(27,24,30,0.1) 0%, rgba(27,24,30,0.95) 100%);
+  }
+  .slider-dots{
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 2;
+  }
+  .dot-indicator{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(253,251,253,0.35);
+    transition: all .3s ease;
+  }
+  .dot-indicator.active{
+    background: var(--mango);
+    width: 18px;
+    border-radius: 4px;
+  }
+
+  header{
+    padding: 16px 20px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  header h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size: 30px;
+    line-height:1.05;
+    margin-top:6px;
+    color: var(--paper);
+  }
+  header h1 span{ color: var(--mango); font-style: italic; font-weight: 600; }
+  header p{
+    margin-top:8px;
+    color: var(--sage);
+    font-size:13.5px;
+    max-width: 36ch;
+  }
+  .status{
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:12px; font-size:12px;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .dot{width:7px; height:7px; border-radius:50%;}
+  .dot.open{background:#D84C98; box-shadow:0 0 8px #D84C98;}
+  .dot.closed{background:#757575;}
+
+  /* Barra de Categorias Fixa (Abas) */
+  .category-nav-wrap{
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background: rgba(27, 24, 30, 0.96);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 16px;
+  }
+  .category-nav{
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .category-nav::-webkit-scrollbar{ display: none; }
+  .cat-tab-btn{
+    flex-shrink: 0;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 7px 14px;
+    color: var(--paper);
+    font-family: 'Work Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .2s ease;
+  }
+  .cat-tab-btn:hover, .cat-tab-btn.active{
+    background: var(--papaya);
+    color: var(--paper);
+    border-color: var(--papaya);
+    font-weight: 600;
+  }
+
+  section{ padding: 22px 20px 6px; }
+  .cat-title{
+    font-family:'Fraunces', serif;
+    font-size: 20px;
+    font-weight:600;
+    color: var(--mango);
+    margin-bottom: 14px;
+    display:flex; align-items:baseline; gap:10px;
+  }
+  .cat-title::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background: var(--line);
+  }
+
+  .item{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .thumb{
+    width:64px; height:64px; border-radius:12px;
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .item-info{ flex:1; min-width:0; }
+  .item-info h3{ font-size:15px; font-weight:500; color:var(--paper); }
+  .item-info p{ font-size:12.5px; color: var(--sage); margin-top:3px; line-height:1.4; }
+  .price{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color: var(--mango);
+    font-weight: bold;
+    margin-top:6px;
+  }
+
+  .item-control{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .qty-btn{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--mango);
+    background: transparent;
+    color: var(--mango);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s ease;
+  }
+  .qty-btn:active{ transform: scale(0.9); }
+  .qty-btn.add{ background: var(--mango); color: var(--paper); font-weight: bold; }
+  .qty-count{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 18px;
+    text-align: center;
+    display: none;
+  }
+
+  /* Modal de Customização / Tamanhos */
+  .custom-overlay{
+    position: fixed; inset:0;
+    background: rgba(0,0,0,0.8);
+    display:flex; align-items:flex-end;
+    opacity:0; pointer-events:none;
+    transition: opacity .2s ease;
+    z-index: 25;
+  }
+  .custom-overlay.show{ opacity:1; pointer-events:auto; }
+  .custom-sheet{
+    width:100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--bg-raised);
+    border-radius: 20px 20px 0 0;
+    padding: 16px 20px 24px;
+    transform: translateY(12px);
+    transition: transform .2s ease;
+  }
+  .custom-overlay.show .custom-sheet{ transform: translateY(0); }
+  .custom-title{
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    color: var(--paper);
+    margin-bottom: 4px;
+  }
+  .custom-desc{ font-size: 12.5px; color: var(--sage); margin-bottom: 16px; }
+  .custom-opt-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .custom-opt-row label{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  /* Rodapé */
+  footer{
+    margin-top: 30px;
+    padding: 24px 20px 40px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+  }
+  .footer-restaurant{
+    font-size: 12.5px;
+    color: var(--sage);
+    margin-bottom: 12px;
+  }
+  .footer-actions{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .agency-link{
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 18px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .agency-link:hover{
+    border-color: var(--mango);
+    transform: translateY(-2px);
+  }
+  .agency-tag{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sage);
+  }
+  .agency-name{
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mango);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .cart-bar{
+    position: fixed;
+    left:16px; right:16px; bottom:16px;
+    background: var(--papaya);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    opacity:0;
+    transform: translateY(20px);
+    pointer-events:none;
+    transition: all .25s ease;
+    z-index: 10;
+  }
+  .cart-bar.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .cart-left{ display:flex; flex-direction:column; }
+  .cart-left span:first-child{ font-size:11px; color: rgba(253,251,253,0.75); font-family:'JetBrains Mono', monospace; }
+  .cart-left span:last-child{ font-size:16px; font-weight:600; font-family:'JetBrains Mono', monospace; color: var(--paper); }
+  .cart-btn{
+    background: var(--paper);
+    color: var(--papaya);
+    border:none;
+    border-radius:10px;
+    padding: 10px 16px;
+    font-weight:600;
+    font-size:13.5px;
+    display:flex; align-items:center; gap:6px;
+    cursor:pointer;
+  }
+
+  .overlay{
+    position: fixed; inset:0;
+    background: rgba(0,0,0,0.8);
+    display:flex; align-items:flex-end;
+    opacity:0; pointer-events:none;
+    transition: opacity .2s ease;
+    z-index: 20;
+  }
+  .overlay.show{ opacity:1; pointer-events:auto; }
+
+  .sheet{
+    width:100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--bg-raised);
+    border-radius: 20px 20px 0 0;
+    padding: 12px 20px 24px;
+    transform: translateY(12px);
+    transition: transform .2s ease;
+  }
+  .overlay.show .sheet{ transform: translateY(0); }
+
+  .sheet-handle{
+    width:36px; height:4px; border-radius:2px;
+    background: var(--line);
+    margin: 4px auto 16px;
+  }
+  .sheet h2{
+    font-family:'Fraunces', serif;
+    font-size:20px; font-weight:600;
+    color: var(--paper);
+  }
+  .sheet-sub{
+    font-size:12.5px; color: var(--sage);
+    margin-top:4px; margin-bottom:14px;
+  }
+
+  .form-section{
+    margin-bottom: 14px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .form-group{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .form-group label{
+    font-size: 11px;
+    color: var(--sage);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+  }
+  .app-input, .app-textarea{
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--paper);
+    font-family: 'Work Sans', sans-serif;
+    font-size: 13.5px;
+    outline: none;
+    width: 100%;
+  }
+  .app-textarea{
+    resize: vertical;
+    min-height: 55px;
+  }
+  .app-input:focus, .app-textarea:focus{
+    border-color: var(--papaya);
+  }
+
+  .sheet-items-list{
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sheet-item-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .sheet-item-ctrls{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sheet-qty-btn{
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--paper);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .order-summary{
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .summary-row{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    color: var(--sage);
+  }
+  .summary-row.total{
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--line);
+    color: var(--paper);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .pay-options{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .pay-opt{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 11px 14px;
+    color: var(--paper);
+    font-family:'Work Sans', sans-serif;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    text-align:left;
+    transition: border-color .15s ease;
+  }
+  .pay-opt.active{
+    border-color: var(--papaya);
+    background: rgba(155, 81, 224, 0.1);
+  }
+  .pay-icon{ font-size:16px; }
+
+  .confirm-btn{
+    width:100%;
+    margin-top:16px;
+    background: var(--mango);
+    color: var(--paper);
+    border:none;
+    border-radius: 12px;
+    padding: 15px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition: opacity .15s ease;
+  }
+  .confirm-btn:disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Slider de Imagens (Focado em Roupas) -->
+<div class="hero-slider">
+  <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80" alt="Moda" class="slide active">
+  <img src="https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=800&q=80" alt="Boutique" class="slide">
+  <img src="https://images.unsplash.com/photo-1489987707023-af0d5e7fec41?auto=format&fit=crop&w=800&q=80" alt="Masculino" class="slide">
+  
+  <div class="slider-overlay"></div>
+  <div class="slider-dots" id="sliderDots">
+    <div class="dot-indicator active"></div>
+    <div class="dot-indicator"></div>
+    <div class="dot-indicator"></div>
+  </div>
+</div>
+
+<header>
+  <div class="eyebrow" id="headerCity">Turilândia · MA</div>
+  <h1 id="headerName">Celly <span>Boutique</span></h1>
+  <p id="headerBio">Levando Elegância e Estilo desde 2020. 🎈 Novidade toda semana! Escolha suas peças abaixo.</p>
+  <div class="status" id="storeStatusWrap">
+    <span class="dot open" id="storeStatusDot"></span>
+    <span id="storeStatusText">Catálogo Aberto para Pedidos</span>
+  </div>
+</header>
+
+<!-- Navegação Rápida por Categorias -->
+<div class="category-nav-wrap">
+  <div class="category-nav">
+    <a href="#cat-feminino" class="cat-tab-btn active">👗 Moda Feminina</a>
+    <a href="#cat-masculino" class="cat-tab-btn">👔 Moda Masculina</a>
+    <a href="#cat-acessorios" class="cat-tab-btn">✨ Acessórios</a>
+  </div>
+</div>
+
+<!-- Seção: Feminino -->
+<section id="cat-feminino">
+  <div class="cat-title">Moda Feminina</div>
+
+  <div class="item" data-id="f1" data-name="Conjunto Alfaiataria" data-price="139.90">
+    <div class="thumb">
+        <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=200&q=80" alt="Conjunto">
+    </div>
+    <div class="item-info">
+      <h3>Conjunto Alfaiataria</h3>
+      <p>Shorts + Blazer cropped. Tecido nobre, caimento perfeito. Sucesso de vendas.</p>
+      <div class="price">R$ 139,90</div>
+    </div>
+    <div class="item-control">
+      <button class="qty-btn" onclick="decreaseItem('f1')" id="dec-f1" style="display:none;">-</button>
+      <span class="qty-count" id="count-f1">0</span>
+      <button class="qty-btn add" onclick="openItemCustom('f1', 'Conjunto Alfaiataria', 139.90)">+</button>
+    </div>
+  </div>
+
+  <div class="item" data-id="f2" data-name="Calça Jeans Modeladora" data-price="119.90">
+    <div class="thumb">
+        <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=200&q=80" alt="Jeans">
+    </div>
+    <div class="item-info">
+      <h3>Calça Jeans Modeladora</h3>
+      <p>Lavagem premium, cintura alta que valoriza as curvas. Super confortável.</p>
+      <div class="price">R$ 119,90</div>
+    </div>
+    <div class="item-control">
+      <button class="qty-btn" onclick="decreaseItem('f2')" id="dec-f2" style="display:none;">-</button>
+      <span class="qty-count" id="count-f2">0</span>
+      <button class="qty-btn add" onclick="openItemCustom('f2', 'Calça Jeans Modeladora', 119.90)">+</button>
+    </div>
+  </div>
+</section>
+
+<!-- Seção: Masculino -->
+<section id="cat-masculino">
+  <div class="cat-title">Moda Masculina</div>
+
+  <div class="item" data-id="m1" data-name="T-Shirt Básica Premium" data-price="59.90">
+    <div class="thumb">
+        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=200&q=80" alt="Camiseta">
+    </div>
+    <div class="item-info">
+      <h3>T-Shirt Básica Premium</h3>
+      <p>100% algodão, corte moderno. Perfeita para qualquer ocasião.</p>
+      <div class="price">R$ 59,90</div>
+    </div>
+    <div class="item-control">
+      <button class="qty-btn" onclick="decreaseItem('m1')" id="dec-m1" style="display:none;">-</button>
+      <span class="qty-count" id="count-m1">0</span>
+      <button class="qty-btn add" onclick="openItemCustom('m1', 'T-Shirt Básica Premium', 59.90)">+</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-restaurant" id="footerRestName">Celly Boutique · Elegância e Estilo</div>
+  <div class="footer-actions">
+    <a href="#" class="agency-link">
+      <span class="agency-tag">Vitrine Digital por</span>
+      <span class="agency-name">RC Sistemas & Automação ↗</span>
+    </a>
+  </div>
+</footer>
+
+<!-- Barra Inferior do Carrinho -->
+<div class="cart-bar" id="cartBar">
+  <div class="cart-left">
+    <span id="cartCount">0 peças</span>
+    <span id="cartTotal">R$ 0,00</span>
+  </div>
+  <button class="cart-btn" id="openOrderBtn" onclick="openPayment()">
+    Finalizar Pedido ↗
+  </button>
+</div>
+
+<!-- Modal de Customização / TAMANHOS -->
+<div class="custom-overlay" id="customOverlay" onclick="closeItemCustom(event)">
+  <div class="custom-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <h3 class="custom-title" id="customItemName">Selecionar Peça</h3>
+    <p class="custom-desc">Escolha a variação de tamanho desejada:</p>
+
+    <!-- Usando Radio buttons para a cliente selecionar APENAS UM tamanho -->
+    <div id="customOptionsList">
+      <div class="custom-opt-row">
+        <label>
+          <input type="radio" name="tamanho" class="opt-check" data-name="Tamanho P" data-price="0"> 
+          <span>Tamanho P</span>
+        </label>
+      </div>
+      <div class="custom-opt-row">
+        <label>
+          <input type="radio" name="tamanho" class="opt-check" data-name="Tamanho M" data-price="0"> 
+          <span>Tamanho M</span>
+        </label>
+      </div>
+      <div class="custom-opt-row">
+        <label>
+          <input type="radio" name="tamanho" class="opt-check" data-name="Tamanho G" data-price="0"> 
+          <span>Tamanho G</span>
+        </label>
+      </div>
+      <div class="custom-opt-row">
+        <label>
+          <input type="radio" name="tamanho" class="opt-check" data-name="Tamanho GG" data-price="0"> 
+          <span>Tamanho GG / Plus</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="confirm-btn" style="margin-top: 18px;" onclick="confirmItemWithCustom()">
+      Adicionar à Sacola
+    </button>
+  </div>
+</div>
+
+<!-- Modal de Fechamento do Pedido -->
+<div class="overlay" id="overlay" onclick="closePayment(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <h2>Sua Sacola</h2>
+    <p class="sheet-sub">Confira suas peças e informe os dados para reserva ou entrega.</p>
+
+    <div class="form-section">
+      <span class="eyebrow">Peças Selecionadas</span>
+      <div class="sheet-items-list" id="sheetItemsList"></div>
+    </div>
+
+    <div class="form-section">
+      <span class="eyebrow">Seus Dados</span>
+      <div class="form-group">
+        <label>Nome Completo *</label>
+        <input type="text" id="clientName" class="app-input" placeholder="Ex: Maria Joana">
+      </div>
+      <div class="form-group">
+        <label>Retirar na loja ou Entregar? *</label>
+        <input type="text" id="clientAddress" class="app-input" placeholder="Digite seu Endereço ou 'Vou buscar na loja'">
+      </div>
+    </div>
+
+    <div class="order-summary">
+      <div class="summary-row">
+        <span>Subtotal:</span>
+        <span id="sumSubtotal">R$ 0,00</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total da Compra:</span>
+        <span id="sumFinal">R$ 0,00</span>
+      </div>
+    </div>
+
+    <span class="eyebrow" style="margin-left: 2px;">Forma de Pagamento</span>
+    <div class="pay-options" style="margin-top: 6px;">
+      <button class="pay-opt" data-method="Pix" onclick="selectPayment(this)">
+        <span class="pay-icon">🔑</span>
+        <span>Pix (Enviar comprovante no Whats)</span>
+      </button>
+
+      <button class="pay-opt" data-method="Cartão" onclick="selectPayment(this)">
+        <span class="pay-icon">💳</span>
+        <span>Cartão de Crédito / Débito</span>
+      </button>
+
+      <button class="pay-opt" data-method="Dinheiro na Loja" onclick="selectPayment(this)">
+        <span class="pay-icon">💵</span>
+        <span>Dinheiro (Pagamento na Loja)</span>
+      </button>
+    </div>
+
+    <button class="confirm-btn" id="confirmBtn" onclick="sendOrder()">
+      Enviar Pedido para a Celly
+    </button>
+  </div>
+</div>
+
+<script>
+  /* ==========================================================
+     CONFIGURAÇÃO RÁPIDA (CELLY BOUTIQUE)
+     ========================================================== */
+  const STORE_CONFIG = {
+    name: "Celly Boutique",
+    city: "Turilândia · MA",
+    whatsapp: "5598982845481", // O número oficial do banner da loja
+    deliveryFee: 0.00
+  };
+
+  let cart = {}; 
+  let paymentMethod = null;
+  let pendingCustomItem = null;
+
+  /* ==========================================================
+     FUNÇÕES GLOBAIS SEGURAS
+     ========================================================== */
+
+  window.openItemCustom = function(id, name, basePrice){
+    pendingCustomItem = { id: id, name: name, basePrice: basePrice };
+    document.getElementById('customItemName').textContent = name;
+    
+    // Desmarca todas as opções sempre que abrir
+    document.querySelectorAll('.opt-check').forEach(function(c) { c.checked = false; });
+    document.getElementById('customOverlay').classList.add('show');
+  };
+
+  window.closeItemCustom = function(e){
+    if(e) e.preventDefault();
+    document.getElementById('customOverlay').classList.remove('show');
+  };
+
+  window.confirmItemWithCustom = function(){
+    if(!pendingCustomItem) return;
+    let additionals = [];
+    
+    // Verifica qual Radio Button de tamanho foi selecionado
+    document.querySelectorAll('.opt-check:checked').forEach(function(chk){
+      additionals.push(chk.dataset.name);
+    });
+
+    if(additionals.length === 0){
+      alert("Por favor, selecione um tamanho antes de continuar.");
+      return;
+    }
+
+    const itemKey = pendingCustomItem.id + '_' + additionals.join('-');
+    const finalItemPrice = pendingCustomItem.basePrice;
+    const finalItemName = pendingCustomItem.name + ' (' + additionals.join(', ') + ')';
+
+    if(!cart[itemKey]){
+      cart[itemKey] = { id: pendingCustomItem.id, key: itemKey, name: finalItemName, price: finalItemPrice, qty: 1 };
+    } else {
+      cart[itemKey].qty++;
+    }
+    window.closeItemCustom();
+    window.updateUI();
+  };
+
+  window.decreaseItem = function(id){
+    for(let key in cart){
+      if(cart[key].id === id){
+        cart[key].qty--;
+        if(cart[key].qty <= 0) delete cart[key];
+        break;
+      }
+    }
+    window.updateUI();
+  };
+
+  window.decreaseCartKey = function(key){
+    if(cart[key]){
+      cart[key].qty--;
+      if(cart[key].qty <= 0) delete cart[key];
+    }
+    window.updateUI();
+  };
+
+  window.increaseCartKey = function(key){
+    if(cart[key]) cart[key].qty++;
+    window.updateUI();
+  };
+
+  window.updateUI = function(){
+    document.querySelectorAll('.item').forEach(function(el){
+      const id = el.dataset.id;
+      const countEl = document.getElementById('count-' + id);
+      const decBtn = document.getElementById('dec-' + id);
+      
+      let totalQtyForId = 0;
+      for (let k in cart) {
+        if (cart[k].id === id) totalQtyForId += cart[k].qty;
+      }
+      
+      if(totalQtyForId > 0){
+        countEl.style.display = 'inline-block';
+        countEl.textContent = totalQtyForId;
+        decBtn.style.display = 'inline-flex';
+      } else {
+        countEl.style.display = 'none';
+        decBtn.style.display = 'none';
+      }
+    });
+
+    const bar = document.getElementById('cartBar');
+    let totalItems = 0;
+    for (let k in cart) totalItems += cart[k].qty;
+
+    if(totalItems > 0){
+      bar.classList.add('show');
+    } else {
+      bar.classList.remove('show');
+      window.closePayment();
+    }
+
+    document.getElementById('cartCount').textContent = totalItems + (totalItems === 1 ? ' peça' : ' peças');
+    window.recalcTotals();
+    window.renderSheetItems();
+  };
+
+  window.getSubtotal = function(){
+    let sub = 0;
+    for (let k in cart) sub += (cart[k].price * cart[k].qty);
+    return sub;
+  };
+
+  window.recalcTotals = function(){
+    const finalTotal = window.getSubtotal();
+    document.getElementById('sumSubtotal').textContent = 'R$ ' + finalTotal.toFixed(2).replace('.', ',');
+    document.getElementById('sumFinal').textContent = 'R$ ' + finalTotal.toFixed(2).replace('.', ',');
+    document.getElementById('cartTotal').textContent = 'R$ ' + finalTotal.toFixed(2).replace('.', ',');
+  };
+
+  window.renderSheetItems = function(){
+    const list = document.getElementById('sheetItemsList');
+    const items = [];
+    for (let k in cart) items.push(cart[k]);
+    
+    if(items.length === 0){
+      list.innerHTML = '<span style="color:var(--sage); font-size:12px;">Nenhuma peça selecionada.</span>';
+      return;
+    }
+
+    list.innerHTML = items.map(function(i){
+      return '<div class="sheet-item-row">' +
+             '<div><strong>' + i.name + '</strong><br><span style="color:var(--sage); font-size:11.5px;">R$ ' + (i.price * i.qty).toFixed(2).replace('.', ',') + '</span></div>' +
+             '<div class="sheet-item-ctrls">' +
+             '<button class="sheet-qty-btn" onclick="decreaseCartKey(\'' + i.key + '\')">-</button>' +
+             '<span style="font-family:\'JetBrains Mono\'; font-weight:600;">' + i.qty + '</span>' +
+             '<button class="sheet-qty-btn" onclick="increaseCartKey(\'' + i.key + '\')">+</button>' +
+             '</div></div>';
+    }).join('');
+  };
+
+  window.openPayment = function(){
+    let totalItems = 0;
+    for (let k in cart) totalItems += cart[k].qty;
+    if(totalItems === 0) return;
+    window.updateUI();
+    document.getElementById('overlay').classList.add('show');
+  };
+
+  window.closePayment = function(e){
+    if(e) e.preventDefault();
+    document.getElementById('overlay').classList.remove('show');
+  };
+
+  window.selectPayment = function(btn){
+    document.querySelectorAll('.pay-opt').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    paymentMethod = btn.dataset.method;
+  };
+
+  window.sendOrder = function(){
+    const clientName = document.getElementById('clientName').value.trim();
+    const clientAddress = document.getElementById('clientAddress').value.trim();
+
+    if(!clientName){
+      alert('Por favor, informe seu nome para a reserva.');
+      document.getElementById('clientName').focus();
+      return;
+    }
+    if(!clientAddress){
+      alert('Por favor, informe se vai retirar na loja ou o endereço de entrega.');
+      document.getElementById('clientAddress').focus();
+      return;
+    }
+    if(!paymentMethod){
+      alert('Por favor, escolha uma forma de pagamento.');
+      return;
+    }
+
+    const finalTotal = window.getSubtotal();
+
+    let msg = '🛍️ *NOVA RESERVA / PEDIDO*\n';
+    msg += '--------------------------------\n';
+    msg += '👤 *Cliente:* ' + clientName + '\n';
+    msg += '📍 *Retirada/Entrega:* ' + clientAddress + '\n';
+    msg += '--------------------------------\n*PEÇAS:*\n';
+
+    for(let k in cart){
+      let i = cart[k];
+      msg += '• ' + i.qty + 'x ' + i.name + ' — R$ ' + (i.price * i.qty).toFixed(2).replace('.', ',') + '\n';
+    }
+
+    msg += '--------------------------------\n';
+    msg += '*Total da Compra: R$ ' + finalTotal.toFixed(2).replace('.', ',') + '*\n\n';
+    msg += '💳 *Pagamento escolhido:* ' + paymentMethod;
+    
+    const url = 'https://wa.me/' + STORE_CONFIG.whatsapp + '?text=' + encodeURIComponent(msg);
+    window.open(url, '_blank');
+    window.closePayment();
+  };
+
+  // Slider Roupas
+  let currentSlide = 0;
+  setInterval(function(){
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot-indicator');
+    if(slides.length === 0) return;
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+  }, 3500);
+
+</script>
+</body>
+</html>
